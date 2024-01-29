@@ -30,13 +30,6 @@ export const UserStore = defineStore('users', {
                 });
         },
 
-        getLanguages(username, repository) {
-            api.get(`/repos/${username}/${repository}/forks`)
-                .then((response) => {
-                    this.languages = response.data;
-                });
-        },
-
         postSaveLocal(username) {
             http.post('/salvar-local', {username: username});
         },
