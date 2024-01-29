@@ -1,8 +1,9 @@
-import { defineStore } from 'pinia';
-import api from '../services/api';
+import {defineStore} from 'pinia';
+import api from '../services/front';
+import http from '../services/back';
 
-export const UserStore = defineStore('users' , {
-    state:  () =>{
+export const UserStore = defineStore('users', {
+    state: () => {
         return {
             users: [],
             languages: [],
@@ -11,32 +12,37 @@ export const UserStore = defineStore('users' , {
         }
     },
     actions: {
-         async getUsers() {
+        getUsers() {
             this.users = [];
             const developers = ['wallysonn', 'diego3g', 'filipedeschamps', 'rmanguinho'];
             for (const developer of developers) {
-                const response = await api.get(`/users/${developer}`);
-                this.users.push(response.data);
+                api.get(`/users/${developer}`)
+                    .then((response) => {
+                        this.users.push(response.data);
+                    });
             }
         },
 
-        async getRepositories(username) {
-            const response = await api.get(`https://api.github.com/users/${username}/repos`);
-            this.repositories = await response.data;
+        getRepositories(username) {
+            api.get(`/users/${username}/repos`)
+                .then((response) => {
+                    this.repositories = response.data;
+                });
         },
 
-        async getLanguages() {
-            const response = await api.get('https://api.github.com/repos/wallysonn/BladeOne/forks');
-            this.languages = await response.data;
+        getLanguages(username, repository) {
+            api.get(`/repos/${username}/${repository}/forks`)
+                .then((response) => {
+                    this.languages = response.data;
+                });
         },
 
-        async postSaveLocal(username) {
-            const response = await api.post('http://vinicius-back.test/api/salvar-local/', {username: username});
-            this.saveLocal = await response.data;
+        postSaveLocal(username) {
+            http.post('/salvar-local', {username: username});
         },
 
         formatDate(dateString) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const options = {year: 'numeric', month: 'long', day: 'numeric'};
             return new Date(dateString).toLocaleDateString(undefined, options);
         },
     },
